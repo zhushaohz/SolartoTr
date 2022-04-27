@@ -1,4 +1,5 @@
 import math
+import time
 
 
 def solar_to_tr(i_dir, b, sharp, ta, posture='standing', f_bes=1, a_sw=0.7, f_svv=1, t_sol=1, hr=6):
@@ -116,16 +117,57 @@ def find_span(x, x_range):
 
 
 def get_i_dir(b, height):
-    return '800'
+    b_range = [0, 15, 30, 45, 60, 75, 90]
+    b_i = find_span(b, b_range)
+    i_dir_arr = [210, 390, 620, 740, 810, 860, 890, 910, 920, 925]
+    i_dir_item = i_dir_arr[b_i]
+    if height > 1800:
+        i_dir_item *= 1.21
+    elif height > 1500:
+        i_dir_item *= 1.18
+    elif height > 1200:
+        i_dir_item *= 1.15
+    elif height > 900:
+        i_dir_item *= 1.12
+    else:
+        i_dir_item = i_dir_item
+    return i_dir_item
+
+    return i_dir_item
 
 
 def get_h(t, latitude, sun_angle):
     """
-
+    get the Solar altitude angle
     :param t: Hour Angle. 地方时(时角)
     :param latitude: Geographic Latitude. 地理纬度，北纬为正，南纬为负
     :param sun_angle: Sun Declination angle. 赤纬角又称太阳赤纬，是地球赤道平面与太阳和地球中心的连线之间的夹角。北纬为正，南纬为负
     :return:
     """
+    deg2rad = math.pi / 180
+    h = math.asin(math.sin(latitude * deg2rad) * math.sin(sun_angle * deg2rad) + math.cos(latitude * deg2rad) *
+                  math.cos(sun_angle * deg2rad) * math.cos(t * deg2rad))
+    h = h * 180 / math.pi
+    if h < 0:
+        return '当前太阳角为负'
+    elif h > 90:
+        h -= 90
+        return h
+    else:
+        return h
 
-    return h
+
+def get_hour_angle():
+    localtime = time.localtime(time.time())
+    hour = localtime.tm_hour
+    min = localtime.tm_min
+    hour_angle = hour * 15 + min * 15 / 60
+    hour_angle -= 180
+    return hour_angle
+
+
+def get_sun_angle():
+    localtime = time.localtime(time.time())
+    day_index = localtime.tm_yday
+    sun_angle = 23.45 * math.sin(2 * math.pi * (284 + day_index) / 365)
+    return int(sun_angle)

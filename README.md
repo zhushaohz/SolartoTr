@@ -2,6 +2,10 @@
 
 Convert a solar gain on human to radiant temperature.
 
+
+## Install
+
+    pip install solartotr
 ## Usage
 
     import solartotr
